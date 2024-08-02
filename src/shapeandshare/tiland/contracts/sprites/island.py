@@ -113,6 +113,3 @@ class SpriteIsland(Island):
             if tile_id:
                 self.hovered_tile_id = tile_id
                 self._hover_over_tile(id=self.hovered_tile_id)
-        else:
-            print("")
-            pass
