@@ -8,9 +8,7 @@ commands:
   server:
     env_spec: default
     unix: |
-      screen -dmS darkness tilandServer
-
-
+      screen -dmS tilandServer darkness
 
   ### Development #############################################################
 
