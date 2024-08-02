@@ -1,0 +1,71 @@
+from pathlib import Path
+
+import pygame
+import shapeandshare
+from pygame import Surface, SurfaceType
+from pygame.rect import Rect, RectType
+from shapeandshare.darkness import TileType
+
+from src.contracts.dtos.center_metadata import CenterMetadata
+
+
+class TileSprite(pygame.sprite.Sprite, shapeandshare.darkness.Tile):
+    class Config:
+        arbitrary_types_allowed = True
+
+    image: Surface | SurfaceType | None = None
+    rect: Rect | RectType | None = None
+
+    # state
+    hovered: bool = False
+
+    def set(self, center: CenterMetadata | None) -> None:
+        # We are updating, pull the prior location
+        if center is None:
+            previous_center: tuple[int, int] = self.rect.center
+
+        # determine image
+        assets_base_path: Path = Path(".") / "assets" / "tiles"
+        if self.tile_type == TileType.WATER:
+            image_path: str = assets_base_path / "water.png"
+        elif self.tile_type == TileType.SHORE:
+            image_path: str = assets_base_path / "shore.png"
+        elif self.tile_type == TileType.DIRT:
+            image_path: str = assets_base_path / "dirt.png"
+        elif self.tile_type == TileType.GRASS:
+            image_path: str = assets_base_path / "grass.png"
+        elif self.tile_type == TileType.UNKNOWN:
+            image_path: str = assets_base_path / "unknown.png"
+        else:
+            raise Exception("Unknown tile type")
+
+        self.image = pygame.image.load(image_path)
+        self.rect: Rect | RectType = self.image.get_rect()
+
+        if center:
+            rect_center_x, rect_center_y = self.rect.center
+            pos_x: tuple[int, int] = rect_center_x + center.x.offset + (center.x.itr * self.rect.width)
+            pos_y: tuple[int, int] = rect_center_y + center.y.offset + (center.y.itr * self.rect.height)
+            self.rect.center = (pos_x, pos_y)
+        else:
+            self.rect.center = previous_center
+
+        # set hover effect
+        if self.hovered:
+            self.image.set_alpha(125)
+
+    def __init__(self, center: CenterMetadata, *args, **kwargs):
+        shapeandshare.darkness.Tile.__init__(self, *args, **kwargs)
+        pygame.sprite.Sprite.__init__(self)
+        self.set(center=center)
+
+    def hover(self):
+        self.hovered = True
+        self.set(center=None)
+
+    def unhover(self):
+        self.hovered = False
+        self.set(center=None)
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
