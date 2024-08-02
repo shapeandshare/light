@@ -1,12 +1,12 @@
 from pathlib import Path
 
 import pygame
-import shapeandshare
 from pygame import Surface, SurfaceType
 from pygame.rect import Rect, RectType
 from shapeandshare.darkness import TileType
-
 from src.contracts.dtos.center_metadata import CenterMetadata
+
+import shapeandshare
 
 
 class TileSprite(pygame.sprite.Sprite, shapeandshare.darkness.Tile):
