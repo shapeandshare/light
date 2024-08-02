@@ -8,16 +8,22 @@ from .tile import TileSprite
 class SpriteIsland(Island):
     tiles: dict[str, TileSprite] = {}
 
+    # there can be only one
+    hovered_tile_id: str | None = None
+    selected_tile_id: str | None = None
+
     # canvas offset
     offset: tuple[int, int]
 
     @property
     def offset_x(self) -> int:
-        return self.offset[0]
+        x, _ = self.offset
+        return x
 
     @property
     def offset_y(self) -> int:
-        return self.offset[1]
+        _, y = self.offset
+        return y
 
     def load_tiles(self, tiles=dict[str, Tile]) -> None:
         max_x, max_y = self.dimensions
@@ -26,23 +32,23 @@ class SpriteIsland(Island):
                 tile_name: str = f"tile_{x}_{y}"
                 tile = tiles[tile_name]
                 tile_partial: dict = tile.model_dump()
-                tile_partial["center"] = self.tile_center(itr_x=x, itr_y=y)
+                tile_partial["center"] = self._tile_center(itr_x=x, itr_y=y)
                 tile_sprite: TileSprite = TileSprite.model_validate(tile_partial)
                 self.tiles[tile_sprite.id] = tile_sprite
 
-    def tile_center(self, itr_x: int, itr_y: int) -> CenterMetadata:
+    def _tile_center(self, itr_x: int, itr_y: int) -> CenterMetadata:
         return CenterMetadata(
             x=CenterDim(offset=self.offset_x, itr=itr_x), y=CenterDim(offset=self.offset_y, itr=itr_y)
         )
 
-    def hover_over_tile(self, id: str) -> None:
+    def _hover_over_tile(self, id: str) -> None:
         self.tiles[id].hover()
 
-    def unhover_over_tile(self, id: str) -> None:
+    def _unhover_over_tile(self, id: str) -> None:
         if id and id in self.tiles.keys():
             self.tiles[id].unhover()
 
-    def hovered_over(self, position: tuple[int, int]) -> str | None:
+    def _hovered_over(self, position: tuple[int, int]) -> str | None:
         if len(self.tiles) < 1:
             return
 
@@ -75,3 +81,38 @@ class SpriteIsland(Island):
                 tile_max_y = tile_center_y + (tile_height / 2)
                 if (tile_min_x <= mouse_x <= tile_max_x) and (tile_min_y <= mouse_y <= tile_max_y):
                     return tile_id
+
+    def update_tile_selection(self, position: tuple[int, int]) -> None:
+        tile_id: str | None = self._hovered_over(position=position)
+        # print(f"selected tile: {self.selected_tile_id} -> {tile_id}")
+        # Then we are selecting
+        if self.selected_tile_id == tile_id:
+            # then we are unselecting
+            # print(f"explicitly unselecting {tile_id}")
+            self._unhover_over_tile(id=self.selected_tile_id)
+            self.selected_tile_id = None
+        elif self.selected_tile_id != tile_id:
+            # then we need to match a change
+            if self.selected_tile_id:
+                # print(f"implicitly unselecting {tile_id}")
+                self._unhover_over_tile(id=self.selected_tile_id)
+            if tile_id:
+                self.selected_tile_id = tile_id
+                # print(f"selecting {tile_id}")
+                self._hover_over_tile(id=self.selected_tile_id)
+
+    def update_tile_hover(self, position: tuple[int, int]):
+        pass
+        tile_id: str | None = self._hovered_over(position=position)
+
+        # Then we are hovering
+        if self.hovered_tile_id != tile_id:
+            # then we need to match a change
+            if self.hovered_tile_id and self.hovered_tile_id != self.selected_tile_id:
+                self._unhover_over_tile(id=self.hovered_tile_id)
+            if tile_id:
+                self.hovered_tile_id = tile_id
+                self._hover_over_tile(id=self.hovered_tile_id)
+        else:
+            print("")
+            pass
