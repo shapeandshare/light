@@ -3,13 +3,12 @@ from pathlib import Path
 import pygame
 from pygame import Surface, SurfaceType
 from pygame.rect import Rect, RectType
-from shapeandshare.darkness import TileType
-from src.contracts.dtos.center_metadata import CenterMetadata
+from shapeandshare.darkness import Tile, TileType
 
-import shapeandshare
+from ..dtos.center_metadata import CenterMetadata
 
 
-class TileSprite(pygame.sprite.Sprite, shapeandshare.darkness.Tile):
+class TileSprite(pygame.sprite.Sprite, Tile):
     class Config:
         arbitrary_types_allowed = True
 
@@ -55,7 +54,7 @@ class TileSprite(pygame.sprite.Sprite, shapeandshare.darkness.Tile):
             self.image.set_alpha(125)
 
     def __init__(self, center: CenterMetadata, *args, **kwargs):
-        shapeandshare.darkness.Tile.__init__(self, *args, **kwargs)
+        Tile.__init__(self, *args, **kwargs)
         pygame.sprite.Sprite.__init__(self)
         self.set(center=center)
 

@@ -15,7 +15,7 @@ commands:
   client:
     env_spec: default
     unix: |
-      python -m src.shapeandshare.tiland.main:main
+      python -m src.shapeandshare.tiland.main
 
   bash:
     env_spec: default
