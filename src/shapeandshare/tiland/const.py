@@ -12,3 +12,6 @@ WINDOW_HEIGHT: int = 750
 
 FPS: int = 60
 FramePerSec = pygame.time.Clock()
+
+
+PRODUCT_NAME: str = "tiland"
