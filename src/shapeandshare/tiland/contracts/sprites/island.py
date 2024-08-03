@@ -8,7 +8,7 @@ from .tile import TileSprite
 class SpriteIsland(Island):
     tiles: dict[str, TileSprite] = {}
 
-    # there can be only one
+    # indexes
     hovered_tile_id: str | None = None
     selected_tile_id: str | None = None
 

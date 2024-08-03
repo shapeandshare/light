@@ -8,7 +8,7 @@ from .const import FPS, WHITE, FramePerSec
 from .contracts.sprites.island import SpriteIsland
 
 
-def loop(DISPLAYSURF: Surface | SurfaceType):
+def loop(display_surface: Surface | SurfaceType):
     client: Client = Client()
 
     # load the first island
@@ -16,11 +16,11 @@ def loop(DISPLAYSURF: Surface | SurfaceType):
     # island: Island = client.island_get(island_ids[0])
 
     # create and load
-    island_id: str = client.island_create(dimensions=(35, 20), biome=TileType.GRASS)
+    island_id: str = client.island_create(dimensions=(17, 10), biome=TileType.GRASS)
     island: Island = client.island_get(id=island_id)
 
     sprite_island: SpriteIsland = SpriteIsland.model_validate(
-        {**island.model_dump(exclude=["tiles"]), "offset": (40, 40)}
+        {**island.model_dump(exclude=["tiles"]), "offset": (0, 0)}
     )
     sprite_island.load_tiles(tiles=island.tiles)
 
@@ -46,9 +46,9 @@ def loop(DISPLAYSURF: Surface | SurfaceType):
 
         # Apply game logic updates
         # Redraw the surface
-        DISPLAYSURF.fill(WHITE)
+        display_surface.fill(WHITE)
         for _, tile in sprite_island.tiles.items():
-            tile.draw(DISPLAYSURF)
+            tile.draw(display_surface)
 
         pygame.display.update()
         FramePerSec.tick(FPS)
