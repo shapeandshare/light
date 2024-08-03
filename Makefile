@@ -9,7 +9,7 @@ clean:
 	rm -rf ./build ./dist ./src/shapeandshare.light.egg-info
 
 nuke:
-	rm -rf ./build ./dist ./src/shapeandshare.light.egg-info ./venv ./data tests/integration/venv tests/integration/shapeandshare_light*.whl
+	rm -rf ./build ./dist ./src/shapeandshare.light.egg-info ./venv ./data tests/integration/venv tests/integration/data tests/integration/shapeandshare.light*.whl
 
 build:
 	resources/build.sh
@@ -31,8 +31,8 @@ integration:
 	make setup
 	make prepare
 	make build
-	cp dist/shapeandshare.light*.whl tests/integration/
 	cd tests/integration/ && make nuke
+	cp dist/shapeandshare.light-*.whl tests/integration/
 	cd tests/integration/ && make setup
 	cd tests/integration/ && make prepare
 	cd tests/integration/ && make server
