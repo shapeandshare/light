@@ -3,6 +3,7 @@ from pathlib import Path
 import pygame
 from pygame import Surface, SurfaceType
 from pygame.rect import Rect, RectType
+
 from shapeandshare.darkness import Tile, TileType
 
 from ..dtos.center_metadata import CenterMetadata
@@ -24,7 +25,7 @@ class TileSprite(pygame.sprite.Sprite, Tile):
             previous_center: tuple[int, int] = self.rect.center
 
         # determine image
-        assets_base_path: Path = Path(".") / "assets" / "tiles"
+        assets_base_path: Path = Path(__file__).parents[2] / "assets" / "tiles"
         if self.tile_type == TileType.WATER:
             image_path: str = assets_base_path / "water.png"
         elif self.tile_type == TileType.SHORE:

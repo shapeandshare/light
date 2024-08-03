@@ -2,7 +2,6 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
-
 [tool.isort]
 py_version = "all"
 line_length = 120
@@ -16,8 +15,14 @@ line-length = 120
 target-version = ["py312"]
 
 
+[tool.setuptools]
+include-package-data = true
+
 [tool.setuptools.packages.find]
 where = ["src"]  # list of folders that contain the packages (["."] by default)
+
+[tool.setuptools.package-data]
+"*" = ["*.png"]
 
 
 [project]
@@ -35,8 +40,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["pydantic", "pygame", "shapeandshare.darkness"]
-
+dependencies = ["pydantic", "pygame", "shapeandshare.darkness", "click"]
 
 [project.scripts]
 light = "shapeandshare.light.main:main"

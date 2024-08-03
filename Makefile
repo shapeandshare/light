@@ -17,12 +17,6 @@ build:
 publish:
 	resources/publish.sh
 
-# In CI:
-#	TWINE_USERNAME=joshburt
-#	TWINE_PASSWORD=token
-#	TWINE_NON_INTERACTIVE
-# locally: ~/.pypirc
-
 lint:
 	resources/lint.sh
 
@@ -30,4 +24,4 @@ lint-fix:
 	resources/lint-fix.sh
 
 server:
-	screen -dmS tilandServer darkness
+	resources/server.sh

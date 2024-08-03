@@ -2,6 +2,7 @@ import sys
 
 import pygame
 from pygame import QUIT, Surface, SurfaceType
+
 from shapeandshare.darkness import Client, Island, TileType
 
 from .const import FPS, WHITE, FramePerSec
