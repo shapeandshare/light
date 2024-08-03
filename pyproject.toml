@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.isort]
+py_version = "all"
+line_length = 120
+profile = "black"
+src_paths = ["src","test"]
+known_first_party = "shapeandshare"
+
+
+[tool.black]
+line-length = 120
+target-version = ["py312"]
+
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]  # list of folders that contain the packages (["."] by default)
+
+[tool.setuptools.package-data]
+"*" = ["*.png"]
+
+
+[project]
+name = "shapeandshare.light"
+version = "0.2.0"
+authors = [
+  { name="Joshua C. Burt", email="joshburt@shapeandshare.com" },
+]
+license.file = "LICENSE"
+description = "The Light"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = ["pydantic", "pygame", "shapeandshare.darkness", "click"]
+
+[project.scripts]
+light = "shapeandshare.light.main:main"
+
+
+[project.urls]
+Homepage = "https://github.com/shapeandshare/light"
+Issues = "https://github.com/shapeandshare/light/issues"

@@ -1,0 +1,12 @@
+.idea/
+envs/
+*.tgz
+*.pyc
+__pycache__/
+data/
+.DS_Store
+build/
+dist/
+venv/
+*.egg-info
+*.whl
