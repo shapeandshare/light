@@ -1,0 +1,4 @@
+# Application Dependnecies
+pydantic
+pygame
+shapeandshare.darkness
