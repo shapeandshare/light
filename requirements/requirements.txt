@@ -1,4 +1,5 @@
 # Application Dependnecies
-pydantic
+pydantic>=2.0
 pygame
-shapeandshare.darkness
+shapeandshare.darkness>=0.1.9
+

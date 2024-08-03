@@ -28,3 +28,6 @@ lint:
 
 lint-fix:
 	resources/lint-fix.sh
+
+server:
+	screen -dmS tilandServer darkness
