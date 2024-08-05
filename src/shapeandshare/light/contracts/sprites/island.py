@@ -1,4 +1,4 @@
-from shapeandshare.darkness import Island, Tile
+from shapeandshare.darkness import Coordinate, Island, Tile, Window
 
 from ..dtos.center_dim import CenterDim
 from ..dtos.center_metadata import CenterMetadata
@@ -25,12 +25,24 @@ class SpriteIsland(Island):
         _, y = self.offset
         return y
 
-    def load_tiles(self, tiles=dict[str, Tile]) -> None:
+    def load_tiles(self, tiles: dict[str, Tile]) -> None:
+        # Define the maximum size
         max_x, max_y = self.dimensions
-        for x in range(max_x):
-            for y in range(max_y):
-                tile_name: str = f"tile_{x}_{y}"
-                tile = tiles[tile_name]
+
+        # Generate an empty 2D block of ocean
+        window: Window = Window(min=Coordinate(x=1, y=1), max=Coordinate(x=max_x, y=max_y))
+
+        range_x_min: int = window.min.x - 1
+        range_x_max: int = window.max.x
+        range_y_min: int = window.min.x - 1
+        range_y_max: int = window.max.y
+        for x in range(range_x_min, range_x_max):
+            for y in range(range_y_min, range_y_max):
+                local_x = x + 1
+                local_y = y + 1
+                tile_id: str = f"tile_{local_x}_{local_y}"
+
+                tile: Tile = tiles[tile_id]
                 tile_partial: dict = tile.model_dump()
                 tile_partial["center"] = self._tile_center(itr_x=x, itr_y=y)
                 tile_sprite: TileSprite = TileSprite.model_validate(tile_partial)

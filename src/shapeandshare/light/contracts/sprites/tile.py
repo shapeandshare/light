@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import pygame
@@ -26,18 +27,26 @@ class TileSprite(pygame.sprite.Sprite, Tile):
 
         # determine image
         assets_base_path: Path = Path(__file__).parents[2] / "assets" / "tiles"
-        if self.tile_type == TileType.WATER:
-            image_path: str = assets_base_path / "water.png"
+        if self.tile_type == TileType.UNKNOWN:
+            image_path: Path = assets_base_path / "unknown.png"
+        elif self.tile_type == TileType.OCEAN:
+            image_path: Path = assets_base_path / "ocean.png"
+        elif self.tile_type == TileType.WATER:
+            image_path: Path = assets_base_path / "water.png"
         elif self.tile_type == TileType.SHORE:
-            image_path: str = assets_base_path / "shore.png"
+            image_path: Path = assets_base_path / "shore.png"
         elif self.tile_type == TileType.DIRT:
-            image_path: str = assets_base_path / "dirt.png"
+            image_path: Path = assets_base_path / "dirt.png"
         elif self.tile_type == TileType.GRASS:
-            image_path: str = assets_base_path / "grass.png"
-        elif self.tile_type == TileType.UNKNOWN:
-            image_path: str = assets_base_path / "unknown.png"
+            image_path: Path = assets_base_path / "grass.png"
+        elif self.tile_type == TileType.ROCK:
+            image_path: Path = assets_base_path / "rock.png"
+        elif self.tile_type == TileType.FOREST:
+            image_path: Path = assets_base_path / "forest.png"
         else:
-            raise Exception("Unknown tile type")
+            msg: str = f"Unknown tile type ({self.tile_type})"
+            logging.warning(msg)
+            image_path: Path = assets_base_path / "unknown.png"
 
         self.image = pygame.image.load(image_path)
         self.rect: Rect | RectType = self.image.get_rect()
@@ -54,8 +63,8 @@ class TileSprite(pygame.sprite.Sprite, Tile):
         if self.hovered:
             self.image.set_alpha(125)
 
-    def __init__(self, center: CenterMetadata, *args, **kwargs):
-        Tile.__init__(self, *args, **kwargs)
+    def __init__(self, center: CenterMetadata, **kwargs):
+        Tile.__init__(self, **kwargs)
         pygame.sprite.Sprite.__init__(self)
         self.set(center=center)
 
