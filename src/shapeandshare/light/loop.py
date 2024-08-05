@@ -17,7 +17,7 @@ def loop(display_surface: Surface | SurfaceType):
     # island: Island = client.island_get(island_ids[0])
 
     # create and load
-    island_id: str = client.island_create(dimensions=(10, 10), biome=TileType.GRASS)
+    island_id: str = client.island_create(dimensions=(20, 20), biome=TileType.GRASS)
     island: Island = client.island_get(id=island_id)
 
     sprite_island: SpriteIsland = SpriteIsland.model_validate(
