@@ -15,4 +15,4 @@ FPS: int = 60
 FramePerSec = pygame.time.Clock()
 
 
-PRODUCT_NAME: str = "tiland"
+PRODUCT_NAME: str = "light"

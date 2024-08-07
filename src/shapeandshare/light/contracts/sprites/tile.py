@@ -27,6 +27,7 @@ class TileSprite(pygame.sprite.Sprite, Tile):
 
         # determine image
         assets_base_path: Path = Path(__file__).parents[2] / "assets" / "tiles"
+
         if self.tile_type == TileType.UNKNOWN:
             image_path: Path = assets_base_path / "unknown.png"
         elif self.tile_type == TileType.OCEAN:
