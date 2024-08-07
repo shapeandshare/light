@@ -2,5 +2,4 @@
 pydantic>=2.0
 pygame
 click
-shapeandshare.darkness>=0.1.9
-
+shapeandshare.darkness>=0.1.12
