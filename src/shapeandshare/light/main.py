@@ -3,6 +3,8 @@ import os
 import click
 import pygame
 
+from .const import WINDOW_HEIGHT, WINDOW_WIDTH
+
 pygame.init()
 
 
@@ -22,7 +24,7 @@ def main(hostname: str, port: int, sleep_time: float, timeout: float, retries: i
     from .display import build_display
     from .loop import loop
 
-    loop(display_surface=build_display())
+    loop(display_surface=build_display(width=WINDOW_WIDTH, height=WINDOW_HEIGHT))
 
 
 if __name__ == "__main__":
