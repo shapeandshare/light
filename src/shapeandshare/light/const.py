@@ -8,8 +8,8 @@ BLACK: tuple[int, int, int] = (0, 0, 0)
 WHITE: tuple[int, int, int] = (255, 255, 255)
 
 # dimensions=(20, 20) 20x15=300, 20x15=300
-WINDOW_WIDTH: int = 300
-WINDOW_HEIGHT: int = 300
+WINDOW_WIDTH: int = 600
+WINDOW_HEIGHT: int = 600
 
 FPS: int = 60
 FramePerSec = pygame.time.Clock()
