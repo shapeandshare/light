@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 import click
@@ -24,7 +25,7 @@ def main(hostname: str, port: int, sleep_time: float, timeout: float, retries: i
     from .display import build_display
     from .loop import loop
 
-    loop(display_surface=build_display(width=WINDOW_WIDTH, height=WINDOW_HEIGHT))
+    asyncio.run(loop(display_surface=build_display(width=WINDOW_WIDTH, height=WINDOW_HEIGHT)))
 
 
 if __name__ == "__main__":
