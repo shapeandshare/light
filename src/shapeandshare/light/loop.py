@@ -13,22 +13,19 @@ async def loop(display_surface: Surface | SurfaceType):
     options: CommandOptions = CommandOptions(sleep_time=5, retry_count=3, tld="127.0.0.1:8000", timeout=60)
     client: Client = Client(options=options)
 
+    # create a new world
     world_id: str = await client.world_create(name="darkness")
 
-    # load the first island
-    # island_ids: list[str] = client.islands_get()
-    # island: Island = client.island_get(island_ids[0])
-
-    # create and load
+    # create a new island
     island_id: str = await client.island_create(
         world_id=world_id, name="roshar", dimensions=(30, 30), biome=TileType.GRASS
     )
     island: Island = await client.island_get(world_id=world_id, island_id=island_id, full=True)
 
     sprite_island: SpriteIsland = SpriteIsland.model_validate(
-        {**island.model_dump(exclude={"tiles"}), "offset": (0, 0)}
+        {**island.model_dump(exclude={"contents"}), "offset": (0, 0)}
     )
-    sprite_island.load_tiles(tiles=island.tiles)
+    sprite_island.load_tiles(tiles=island.contents)
 
     while True:
         # Review game events (of interest)
