@@ -9,6 +9,7 @@ def build_display(width: int, height: int) -> Surface | SurfaceType:
         (width, height),
         flags=pygame.RESIZABLE | pygame.SCALED,
         # (width, height), flags=pygame.RESIZABLE
+        # (width, height), flags=pygame.SCALED
     )
     pygame.display.set_caption(PRODUCT_NAME)
     return display_surface
