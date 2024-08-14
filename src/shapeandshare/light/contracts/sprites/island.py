@@ -1,4 +1,4 @@
-from shapeandshare.darkness import Coordinate, Island, Tile, Window
+from shapeandshare.darkness import Coordinate, Island, Tile, Window, TileConnectionType
 
 from ..dtos.center_dim import CenterDim
 from ..dtos.center_metadata import CenterMetadata
@@ -27,22 +27,50 @@ class SpriteIsland(Island):
 
     def load_tiles(self, tiles: dict[str, Tile]) -> None:
         # Define the maximum size
-        max_x, max_y = self.dimensions
+        width, height = self.dimensions
+        tile_matrix: list[list[str|None]] = [[None for x in range(width)] for y in range(height)]
 
-        # Generate an empty 2D block of ocean
-        window: Window = Window(min=Coordinate(x=1, y=1), max=Coordinate(x=max_x, y=max_y))
+        def build_it(origin_x: int, origin_y: int, origin_tile: Tile):
+            # print(origin_tile)
+            tile_matrix[origin_x-1][origin_y-1] = origin_tile.id
+            for conn, neighbor in origin_tile.next.items():
+                if conn == TileConnectionType.UP:
+                    new_x = origin_x
+                    new_y = origin_y - 1
+                    if tile_matrix[new_x-1][new_y-1] is None:
+                        tile_matrix[new_x-1][new_y-1] = tiles[neighbor].id
+                        build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
+                elif conn == TileConnectionType.DOWN:
+                    new_x = origin_x
+                    new_y = origin_y + 1
+                    if tile_matrix[new_x-1][new_y-1] is None:
+                        tile_matrix[new_x-1][new_y-1] = tiles[neighbor].id
+                        build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
+                elif conn == TileConnectionType.LEFT:
+                    new_x = origin_x - 1
+                    new_y = origin_y
+                    if tile_matrix[new_x-1][new_y-1] is None:
+                        tile_matrix[new_x-1][new_y-1] = tiles[neighbor].id
+                        build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
+                elif conn == TileConnectionType.RIGHT:
+                    new_x = origin_x + 1
+                    new_y = origin_y
+                    if tile_matrix[new_x-1][new_y-1] is None:
+                        tile_matrix[new_x-1][new_y-1] = tiles[neighbor].id
+                        build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
 
-        range_x_min: int = window.min.x - 1
-        range_x_max: int = window.max.x
-        range_y_min: int = window.min.x - 1
-        range_y_max: int = window.max.y
-        for x in range(range_x_min, range_x_max):
-            for y in range(range_y_min, range_y_max):
+        build_it(origin_x=1, origin_y=1, origin_tile=tiles[self.origin])
+
+        for x in range(0, width):
+            for y in range(0, height):
                 local_x = x + 1
                 local_y = y + 1
-                tile_id: str = f"tile_{local_x}_{local_y}"
-
+                # tile_id: str = f"tile_{local_x}_{local_y}"
+                tile_id = tile_matrix[local_x-1][local_y-1]
                 tile: Tile = tiles[tile_id]
+
+                # get tile by offset
+
                 tile_partial: dict = tile.model_dump()
                 tile_partial["center"] = self._tile_center(itr_x=x, itr_y=y)
                 tile_sprite: TileSprite = TileSprite.model_validate(tile_partial)
@@ -77,10 +105,10 @@ class SpriteIsland(Island):
 
         # See if the mouse cursor is above the island:
         if (
-            (mouse_x >= self.offset_x)
-            and (mouse_y >= self.offset_y)
-            and (mouse_x <= island_max_x)
-            and (mouse_y <= island_max_y)
+                (mouse_x >= self.offset_x)
+                and (mouse_y >= self.offset_y)
+                and (mouse_x <= island_max_x)
+                and (mouse_y <= island_max_y)
         ):
             # see if the cursor is above a tile:
             for tile_id, tile in self.tiles.items():

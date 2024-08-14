@@ -7,17 +7,25 @@ GREEN: tuple[int, int, int] = (0, 255, 0)
 BLACK: tuple[int, int, int] = (0, 0, 0)
 WHITE: tuple[int, int, int] = (255, 255, 255)
 
-# dimensions=(20, 20) 20x15=300, 20x15=300
 
-# WINDOW_WIDTH: int = 75
-# WINDOW_HEIGHT: int = 75
 
-# WINDOW_WIDTH: int = 300
-# WINDOW_HEIGHT: int = 300
+# TILE_X: int = 15
+# TILE_Y: int = 15
+# DIM_X: int = 75
+# DIM_Y: int = 50
 
-# 30x15=450
-WINDOW_WIDTH: int = 450
-WINDOW_HEIGHT: int = 450
+
+TILE_X: int = 15
+TILE_Y: int = 15
+
+
+DIM_X: int = 15
+DIM_Y: int = 15
+
+
+# 100x15=1500
+WINDOW_WIDTH: int = TILE_X * DIM_X
+WINDOW_HEIGHT: int = TILE_Y * DIM_Y
 
 
 FPS: int = 60
