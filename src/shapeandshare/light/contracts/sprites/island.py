@@ -52,7 +52,7 @@ class SpriteIsland(Island):
                 if conn == TileConnectionType.UP:
                     new_x = origin_x
                     new_y = origin_y - 1
-                    print(f"[UP] new_x: {new_x}, new_y: {new_y}")
+                    # print(f"[UP] new_x: {new_x}, new_y: {new_y}")
                     try:
                         if tile_matrix[new_x - 1][new_y - 1] is None:
                             tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
@@ -62,7 +62,7 @@ class SpriteIsland(Island):
                 elif conn == TileConnectionType.DOWN:
                     new_x = origin_x
                     new_y = origin_y + 1
-                    print(f"[DOWN] new_x: {new_x}, new_y: {new_y}")
+                    # print(f"[DOWN] new_x: {new_x}, new_y: {new_y}")
                     try:
                         if tile_matrix[new_x - 1][new_y - 1] is None:
                             tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
@@ -72,7 +72,7 @@ class SpriteIsland(Island):
                 elif conn == TileConnectionType.LEFT:
                     new_x = origin_x - 1
                     new_y = origin_y
-                    print(f"[LEFT] new_x: {new_x}, new_y: {new_y}")
+                    # print(f"[LEFT] new_x: {new_x}, new_y: {new_y}")
                     try:
                         if tile_matrix[new_x - 1][new_y - 1] is None:
                             tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
@@ -82,7 +82,7 @@ class SpriteIsland(Island):
                 elif conn == TileConnectionType.RIGHT:
                     new_x = origin_x + 1
                     new_y = origin_y
-                    print(f"[RIGHT] new_x: {new_x}, new_y: {new_y}")
+                    # print(f"[RIGHT] new_x: {new_x}, new_y: {new_y}")
                     try:
                         if tile_matrix[new_x - 1][new_y - 1] is None:
                             tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
