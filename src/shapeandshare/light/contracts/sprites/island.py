@@ -1,8 +1,14 @@
-from shapeandshare.darkness import Coordinate, Island, Tile, Window
+import sys
+
+from shapeandshare.darkness import Island, Tile, TileConnectionType
 
 from ..dtos.center_dim import CenterDim
 from ..dtos.center_metadata import CenterMetadata
 from .tile import TileSprite
+
+# TODO: move to numpy ...
+# print(sys.getrecursionlimit())
+sys.setrecursionlimit(3000)
 
 
 class SpriteIsland(Island):
@@ -27,26 +33,81 @@ class SpriteIsland(Island):
 
     def load_tiles(self, tiles: dict[str, Tile]) -> None:
         # Define the maximum size
-        max_x, max_y = self.dimensions
+        width, height = self.dimensions
+        tile_matrix: list[list[str | None]] = [[None for x in range(width)] for y in range(height)]
 
-        # Generate an empty 2D block of ocean
-        window: Window = Window(min=Coordinate(x=1, y=1), max=Coordinate(x=max_x, y=max_y))
+        # print("========================")
+        # print("========================")
+        # print("========================")
+        # print("========================")
+        # print(tile_matrix)
+        # print("========================")
+        # print("========================")
+        # print("========================")
+        # print("========================")
+        def build_it(origin_x: int, origin_y: int, origin_tile: Tile):
 
-        range_x_min: int = window.min.x - 1
-        range_x_max: int = window.max.x
-        range_y_min: int = window.min.x - 1
-        range_y_max: int = window.max.y
-        for x in range(range_x_min, range_x_max):
-            for y in range(range_y_min, range_y_max):
+            tile_matrix[origin_x - 1][origin_y - 1] = origin_tile.id
+            for conn, neighbor in origin_tile.next.items():
+                if conn == TileConnectionType.UP:
+                    new_x = origin_x
+                    new_y = origin_y - 1
+                    # print(f"[UP] new_x: {new_x}, new_y: {new_y}")
+                    try:
+                        if tile_matrix[new_x - 1][new_y - 1] is None:
+                            tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
+                            build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
+                    except IndexError:
+                        pass
+                elif conn == TileConnectionType.DOWN:
+                    new_x = origin_x
+                    new_y = origin_y + 1
+                    # print(f"[DOWN] new_x: {new_x}, new_y: {new_y}")
+                    try:
+                        if tile_matrix[new_x - 1][new_y - 1] is None:
+                            tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
+                            build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
+                    except IndexError:
+                        pass
+                elif conn == TileConnectionType.LEFT:
+                    new_x = origin_x - 1
+                    new_y = origin_y
+                    # print(f"[LEFT] new_x: {new_x}, new_y: {new_y}")
+                    try:
+                        if tile_matrix[new_x - 1][new_y - 1] is None:
+                            tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
+                            build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
+                    except IndexError:
+                        pass
+                elif conn == TileConnectionType.RIGHT:
+                    new_x = origin_x + 1
+                    new_y = origin_y
+                    # print(f"[RIGHT] new_x: {new_x}, new_y: {new_y}")
+                    try:
+                        if tile_matrix[new_x - 1][new_y - 1] is None:
+                            tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
+                            build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
+                    except IndexError:
+                        pass
+
+        build_it(origin_x=1, origin_y=1, origin_tile=tiles[self.origin])
+
+        for x in range(0, width):
+            for y in range(0, height):
                 local_x = x + 1
                 local_y = y + 1
-                tile_id: str = f"tile_{local_x}_{local_y}"
+                try:
+                    tile_id = tile_matrix[local_x - 1][local_y - 1]
+                    tile: Tile = tiles[tile_id]
 
-                tile: Tile = tiles[tile_id]
-                tile_partial: dict = tile.model_dump()
-                tile_partial["center"] = self._tile_center(itr_x=x, itr_y=y)
-                tile_sprite: TileSprite = TileSprite.model_validate(tile_partial)
-                self.tiles[tile_sprite.id] = tile_sprite
+                    # get tile by offset
+
+                    tile_partial: dict = tile.model_dump()
+                    tile_partial["center"] = self._tile_center(itr_x=x, itr_y=y)
+                    tile_sprite: TileSprite = TileSprite.model_validate(tile_partial)
+                    self.tiles[tile_sprite.id] = tile_sprite
+                except IndexError:
+                    pass
 
     def _tile_center(self, itr_x: int, itr_y: int) -> CenterMetadata:
         return CenterMetadata(
@@ -114,7 +175,6 @@ class SpriteIsland(Island):
                 self._hover_over_tile(id=self.selected_tile_id)
 
     def update_tile_hover(self, position: tuple[int, int]):
-        pass
         tile_id: str | None = self._hovered_over(position=position)
 
         # Then we are hovering

@@ -5,7 +5,7 @@ from pygame import QUIT, Surface, SurfaceType
 
 from shapeandshare.darkness import Client, CommandOptions, Island, TileType
 
-from .const import FPS, WHITE, FramePerSec
+from .const import DIM_X, DIM_Y, FPS, WHITE, FramePerSec
 from .contracts.sprites.island import SpriteIsland
 
 
@@ -18,7 +18,7 @@ async def loop(display_surface: Surface | SurfaceType):
 
     # create a new island
     island_id: str = await client.island_create(
-        world_id=world_id, name="roshar", dimensions=(30, 30), biome=TileType.GRASS
+        world_id=world_id, name="roshar", dimensions=(DIM_X, DIM_Y), biome=TileType.GRASS
     )
     island: Island = await client.island_get(world_id=world_id, island_id=island_id, full=True)
 
