@@ -19,8 +19,8 @@ TILE_X: int = 15
 TILE_Y: int = 15
 
 
-DIM_X: int = 15
-DIM_Y: int = 15
+DIM_X: int = 30
+DIM_Y: int = 30
 
 
 # 100x15=1500
