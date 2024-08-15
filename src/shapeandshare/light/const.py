@@ -8,7 +8,6 @@ BLACK: tuple[int, int, int] = (0, 0, 0)
 WHITE: tuple[int, int, int] = (255, 255, 255)
 
 
-
 # TILE_X: int = 15
 # TILE_Y: int = 15
 # DIM_X: int = 75
@@ -19,8 +18,8 @@ TILE_X: int = 15
 TILE_Y: int = 15
 
 
-DIM_X: int = 30
-DIM_Y: int = 30
+DIM_X: int = 32
+DIM_Y: int = 32
 
 
 # 100x15=1500
