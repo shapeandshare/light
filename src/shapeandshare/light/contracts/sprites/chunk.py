@@ -1,6 +1,6 @@
 import sys
 
-from shapeandshare.darkness import Island, Tile, TileConnectionType
+from shapeandshare.darkness import Chunk, Tile, TileConnectionType
 
 from ..dtos.center_dim import CenterDim
 from ..dtos.center_metadata import CenterMetadata
@@ -8,10 +8,10 @@ from .tile import TileSprite
 
 # TODO: move to numpy ...
 # print(sys.getrecursionlimit())
-sys.setrecursionlimit(3000)
+sys.setrecursionlimit(6000)
 
 
-class SpriteIsland(Island):
+class SpriteChunk(Chunk):
     tiles: dict[str, TileSprite] = {}
 
     # indexes
@@ -36,15 +36,6 @@ class SpriteIsland(Island):
         width, height = self.dimensions
         tile_matrix: list[list[str | None]] = [[None for x in range(width)] for y in range(height)]
 
-        # print("========================")
-        # print("========================")
-        # print("========================")
-        # print("========================")
-        # print(tile_matrix)
-        # print("========================")
-        # print("========================")
-        # print("========================")
-        # print("========================")
         def build_it(origin_x: int, origin_y: int, origin_tile: Tile):
 
             tile_matrix[origin_x - 1][origin_y - 1] = origin_tile.id
@@ -132,16 +123,16 @@ class SpriteIsland(Island):
             break
 
         mouse_x, mouse_y = position
-        island_x, island_y = self.dimensions
-        island_max_x = (island_x * tile_width) + self.offset_x
-        island_max_y = (island_y * tile_height) + self.offset_y
+        chunk_x, chunk_y = self.dimensions
+        chunk_max_x = (chunk_x * tile_width) + self.offset_x
+        chunk_max_y = (chunk_y * tile_height) + self.offset_y
 
-        # See if the mouse cursor is above the island:
+        # See if the mouse cursor is above the chunk:
         if (
             (mouse_x >= self.offset_x)
             and (mouse_y >= self.offset_y)
-            and (mouse_x <= island_max_x)
-            and (mouse_y <= island_max_y)
+            and (mouse_x <= chunk_max_x)
+            and (mouse_y <= chunk_max_y)
         ):
             # see if the cursor is above a tile:
             for tile_id, tile in self.tiles.items():
