@@ -156,7 +156,7 @@ class SpriteChunk(Chunk):
                 if (tile_min_x <= mouse_x <= tile_max_x) and (tile_min_y <= mouse_y <= tile_max_y):
                     return tile_id
 
-    def update_tile_selection(self, position: tuple[int, int]) -> None:
+    def update_tile_selection(self, position: tuple[int, int]) -> TileSprite | None:
         tile_id: str | None = self._hovered_over(position=position)
         # print(f"selected tile: {self.selected_tile_id} -> {tile_id}")
         # Then we are selecting
@@ -170,10 +170,16 @@ class SpriteChunk(Chunk):
             if self.selected_tile_id:
                 # print(f"implicitly unselecting {tile_id}")
                 self._unhover_over_tile(id=self.selected_tile_id)
+                self.selected_tile_id = None
             if tile_id:
                 self.selected_tile_id = tile_id
                 # print(f"selecting {tile_id}")
                 self._hover_over_tile(id=self.selected_tile_id)
+        return self.get_selected_tile()
+
+    def get_selected_tile(self) -> TileSprite | None:
+        if self.selected_tile_id:
+            return self.tiles[self.selected_tile_id]
 
     def update_tile_hover(self, position: tuple[int, int]):
         tile_id: str | None = self._hovered_over(position=position)

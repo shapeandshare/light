@@ -54,8 +54,8 @@ class TileSprite(pygame.sprite.Sprite, Tile):
 
         if center:
             rect_center_x, rect_center_y = self.rect.center
-            pos_x: tuple[int, int] = rect_center_x + center.x.offset + (center.x.itr * self.rect.width)
-            pos_y: tuple[int, int] = rect_center_y + center.y.offset + (center.y.itr * self.rect.height)
+            pos_x: int = rect_center_x + center.x.offset + (center.x.itr * self.rect.width)
+            pos_y: int = rect_center_y + center.y.offset + (center.y.itr * self.rect.height)
             self.rect.center = (pos_x, pos_y)
         else:
             self.rect.center = previous_center
