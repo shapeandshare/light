@@ -26,6 +26,9 @@ lint-fix:
 server:
 	resources/server.sh
 
+client:
+	resources/client.sh
+
 integration:
 	make nuke
 	make setup

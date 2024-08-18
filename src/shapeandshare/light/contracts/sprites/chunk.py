@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from shapeandshare.darkness import Chunk, Tile, TileConnectionType
@@ -5,6 +6,9 @@ from shapeandshare.darkness import Chunk, Tile, TileConnectionType
 from ..dtos.center_dim import CenterDim
 from ..dtos.center_metadata import CenterMetadata
 from .tile import TileSprite
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
 
 # TODO: move to numpy ...
 # print(sys.getrecursionlimit())
@@ -34,10 +38,10 @@ class SpriteChunk(Chunk):
     def load_tiles(self, tiles: dict[str, Tile]) -> None:
         # Define the maximum size
         width, height = self.dimensions
-        tile_matrix: list[list[str | None]] = [[None for x in range(width)] for y in range(height)]
+        tile_matrix: list[list[str | None]] = [[None for y in range(height)] for x in range(width)]
 
         def build_it(origin_x: int, origin_y: int, origin_tile: Tile):
-
+            # print(f"build_it | origin_x: {origin_x}, origin_y: {origin_y}, origin_tile: {origin_tile}")
             tile_matrix[origin_x - 1][origin_y - 1] = origin_tile.id
             for conn, neighbor in origin_tile.next.items():
                 if conn == TileConnectionType.UP:
@@ -48,8 +52,9 @@ class SpriteChunk(Chunk):
                         if tile_matrix[new_x - 1][new_y - 1] is None:
                             tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
                             build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
-                    except IndexError:
-                        pass
+                    except IndexError as error:
+                        msg: str = str(error)
+                        logger.warning(msg)
                 elif conn == TileConnectionType.DOWN:
                     new_x = origin_x
                     new_y = origin_y + 1
@@ -58,8 +63,9 @@ class SpriteChunk(Chunk):
                         if tile_matrix[new_x - 1][new_y - 1] is None:
                             tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
                             build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
-                    except IndexError:
-                        pass
+                    except IndexError as error:
+                        msg: str = str(error)
+                        logger.warning(msg)
                 elif conn == TileConnectionType.LEFT:
                     new_x = origin_x - 1
                     new_y = origin_y
@@ -68,8 +74,9 @@ class SpriteChunk(Chunk):
                         if tile_matrix[new_x - 1][new_y - 1] is None:
                             tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
                             build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
-                    except IndexError:
-                        pass
+                    except IndexError as error:
+                        msg: str = str(error)
+                        logger.warning(msg)
                 elif conn == TileConnectionType.RIGHT:
                     new_x = origin_x + 1
                     new_y = origin_y
@@ -78,8 +85,9 @@ class SpriteChunk(Chunk):
                         if tile_matrix[new_x - 1][new_y - 1] is None:
                             tile_matrix[new_x - 1][new_y - 1] = tiles[neighbor].id
                             build_it(origin_x=new_x, origin_y=new_y, origin_tile=tiles[neighbor])
-                    except IndexError:
-                        pass
+                    except IndexError as error:
+                        msg: str = str(error)
+                        logger.warning(msg)
 
         build_it(origin_x=1, origin_y=1, origin_tile=tiles[self.origin])
 
@@ -97,8 +105,10 @@ class SpriteChunk(Chunk):
                     tile_partial["center"] = self._tile_center(itr_x=x, itr_y=y)
                     tile_sprite: TileSprite = TileSprite.model_validate(tile_partial)
                     self.tiles[tile_sprite.id] = tile_sprite
-                except IndexError:
-                    pass
+
+                except IndexError as error:
+                    msg: str = str(error)
+                    logger.warning(msg)
 
     def _tile_center(self, itr_x: int, itr_y: int) -> CenterMetadata:
         return CenterMetadata(
@@ -146,7 +156,7 @@ class SpriteChunk(Chunk):
                 if (tile_min_x <= mouse_x <= tile_max_x) and (tile_min_y <= mouse_y <= tile_max_y):
                     return tile_id
 
-    def update_tile_selection(self, position: tuple[int, int]) -> None:
+    def update_tile_selection(self, position: tuple[int, int]) -> TileSprite | None:
         tile_id: str | None = self._hovered_over(position=position)
         # print(f"selected tile: {self.selected_tile_id} -> {tile_id}")
         # Then we are selecting
@@ -160,10 +170,16 @@ class SpriteChunk(Chunk):
             if self.selected_tile_id:
                 # print(f"implicitly unselecting {tile_id}")
                 self._unhover_over_tile(id=self.selected_tile_id)
+                self.selected_tile_id = None
             if tile_id:
                 self.selected_tile_id = tile_id
                 # print(f"selecting {tile_id}")
                 self._hover_over_tile(id=self.selected_tile_id)
+        return self.get_selected_tile()
+
+    def get_selected_tile(self) -> TileSprite | None:
+        if self.selected_tile_id:
+            return self.tiles[self.selected_tile_id]
 
     def update_tile_hover(self, position: tuple[int, int]):
         tile_id: str | None = self._hovered_over(position=position)
