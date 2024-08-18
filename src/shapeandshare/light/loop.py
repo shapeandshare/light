@@ -3,7 +3,7 @@ import sys
 import pygame
 from pygame import QUIT, Surface, SurfaceType
 
-from shapeandshare.darkness import Client, CommandOptions, TileType, Chunk
+from shapeandshare.darkness import Chunk, Client, CommandOptions, TileType
 
 from .const import DIM_X, DIM_Y, FPS, WHITE, FramePerSec
 from .contracts.sprites.chunk import SpriteChunk
@@ -22,9 +22,7 @@ async def loop(display_surface: Surface | SurfaceType):
     )
     chunk: Chunk = await client.chunk_get(world_id=world_id, chunk_id=chunk_id, full=True)
 
-    sprite_chunk: SpriteChunk = SpriteChunk.model_validate(
-        {**chunk.model_dump(exclude={"contents"}), "offset": (0, 0)}
-    )
+    sprite_chunk: SpriteChunk = SpriteChunk.model_validate({**chunk.model_dump(exclude={"contents"}), "offset": (0, 0)})
     sprite_chunk.load_tiles(tiles=chunk.contents)
 
     while True:
