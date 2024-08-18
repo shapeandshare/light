@@ -18,17 +18,19 @@ TILE_X: int = 15
 TILE_Y: int = 15
 
 
-DIM_X: int = 16
-DIM_Y: int = 16
+DIM_X: int = 32
+DIM_Y: int = 32
 
 
 # 100x15=1500
 # WINDOW_WIDTH: int = TILE_X * DIM_X + 200
 # WINDOW_HEIGHT: int = TILE_Y * DIM_Y
 
-WINDOW_WIDTH: int = 800
-WINDOW_HEIGHT: int = 600
+# WINDOW_WIDTH: int = 800
+# WINDOW_HEIGHT: int = 600
 
+WINDOW_WIDTH: int = 1536
+WINDOW_HEIGHT: int = 1024
 
 FPS: int = 60
 FramePerSec = pygame.time.Clock()
