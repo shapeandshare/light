@@ -1,4 +1,5 @@
 import sys
+import time
 
 import pygame
 from pydantic import BaseModel
@@ -51,6 +52,21 @@ def blit_text(surface: Surface | SurfaceType, label: LabelDTO) -> None:
         y += word_height  # Start on new row.
 
 
+async def load_sprite_chunk(
+    client: Client, world_id: str, chunk_id: str, sprite_chunk: SpriteChunk | None
+) -> SpriteChunk:
+    # print("CHUNKLOADEVENT")
+    if sprite_chunk:
+        await sprite_chunk.reload_tiles(client=client, world_id=world_id, chunk_id=chunk_id)
+    else:
+        chunk: Chunk = await client.chunk_get(world_id=world_id, chunk_id=chunk_id, full=True)
+        sprite_chunk: SpriteChunk = SpriteChunk.model_validate(
+            {**chunk.model_dump(exclude={"contents"}), "offset": (0, 0)}
+        )
+        sprite_chunk.load_tiles(tiles=chunk.contents)
+    return sprite_chunk
+
+
 async def loop(display_surface: Surface | SurfaceType):
     options: CommandOptions = CommandOptions(sleep_time=5, retry_count=3, tld="127.0.0.1:8000", timeout=60)
     client: Client = Client(options=options)
@@ -62,43 +78,52 @@ async def loop(display_surface: Surface | SurfaceType):
     chunk_id: str = await client.chunk_create(
         world_id=world_id, name="roshar", dimensions=(DIM_X, DIM_Y), biome=TileType.GRASS
     )
-    chunk: Chunk = await client.chunk_get(world_id=world_id, chunk_id=chunk_id, full=True)
-
-    sprite_chunk: SpriteChunk = SpriteChunk.model_validate({**chunk.model_dump(exclude={"contents"}), "offset": (0, 0)})
-    sprite_chunk.load_tiles(tiles=chunk.contents)
+    sprite_chunk: SpriteChunk = await load_sprite_chunk(
+        client=client, world_id=world_id, chunk_id=chunk_id, sprite_chunk=None
+    )
     selected_tile_label: LabelDTO | None = None
+
+    CHUNKLOADEVENT = pygame.USEREVENT + 1
+    interval: int = 5000
+    pygame.time.set_timer(CHUNKLOADEVENT, interval)
 
     while True:
         # Review game events (of interest)
         for event in pygame.event.get():
+            # print(event)
+
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
 
-            if event.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONDOWN):
+            if event.type == pygame.MOUSEMOTION:
                 pointer_pos: tuple[int, int] = pygame.mouse.get_pos()
-                # print(pointer_pos)
+                # print("MOUSEMOTION")
+                sprite_chunk.update_tile_hover(position=pointer_pos)
 
-                # Determine action type
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    # print("MOUSEBUTTONDOWN")
-                    tile_sprite: TileSprite | None = sprite_chunk.update_tile_selection(position=pointer_pos)
-                    if tile_sprite:
-                        tile: Tile = Tile.model_validate(tile_sprite.model_dump(exclude={"image", "rect", "hovered"}))
-                        # print(tile.model_dump_json(indent=4))
-                        center: tuple[int, int] = ((TILE_X * DIM_X), 1)
-                        myfont: Font = pygame.font.SysFont("verdana", 24)
-                        label = LabelDTO(
-                            text=tile.model_dump_json(indent=4), pos=center, font=myfont, color=pygame.Color("black")
-                        )
-                        selected_tile_label = label
-                    else:
-                        selected_tile_label = None
-                        # print("unselecting tile label")
+            # Determine action type
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                pointer_pos: tuple[int, int] = pygame.mouse.get_pos()
+                # print("MOUSEBUTTONDOWN")
+                tile_sprite: TileSprite | None = sprite_chunk.update_tile_selection(position=pointer_pos)
+                if tile_sprite:
+                    tile: Tile = Tile.model_validate(tile_sprite.model_dump(exclude={"image", "rect", "hovered"}))
+                    # print(tile.model_dump_json(indent=4))
+                    center: tuple[int, int] = ((TILE_X * DIM_X), 1)
+                    myfont: Font = pygame.font.SysFont("verdana", 24)
+                    label = LabelDTO(
+                        text=tile.model_dump_json(indent=4), pos=center, font=myfont, color=pygame.Color("black")
+                    )
+                    # print(label.text)
+                    selected_tile_label = label
+                else:
+                    selected_tile_label = None
+                    # print("unselecting tile label")
 
-                elif event.type == pygame.MOUSEMOTION:
-                    # print("MOUSEMOTION")
-                    sprite_chunk.update_tile_hover(position=pointer_pos)
+            if event.type == CHUNKLOADEVENT:
+                sprite_chunk = await load_sprite_chunk(
+                    client=client, world_id=world_id, chunk_id=chunk_id, sprite_chunk=sprite_chunk
+                )
 
         # Apply game logic updates
         # Redraw the surface

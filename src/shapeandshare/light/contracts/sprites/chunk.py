@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from shapeandshare.darkness import Chunk, Tile, TileConnectionType
+from shapeandshare.darkness import Chunk, Client, Tile, TileConnectionType
 
 from ..dtos.center_dim import CenterDim
 from ..dtos.center_metadata import CenterMetadata
@@ -192,3 +192,11 @@ class SpriteChunk(Chunk):
             if tile_id:
                 self.hovered_tile_id = tile_id
                 self._hover_over_tile(id=self.hovered_tile_id)
+
+    async def reload_tiles(self, client: Client, world_id: str, chunk_id: str) -> None:
+        chunk: Chunk = await client.chunk_get(world_id=world_id, chunk_id=chunk_id, full=True)
+        self.load_tiles(tiles=chunk.contents)
+        if self.selected_tile_id:
+            self._hover_over_tile(id=self.selected_tile_id)
+        if self.hovered_tile_id:
+            self._hover_over_tile(id=self.hovered_tile_id)
