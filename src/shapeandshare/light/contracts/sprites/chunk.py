@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from shapeandshare.darkness import Chunk, Tile, TileConnectionType
+from shapeandshare.darkness import Chunk, StateClient, Tile, TileConnectionType
 
 from ..dtos.center_dim import CenterDim
 from ..dtos.center_metadata import CenterMetadata
@@ -12,7 +12,7 @@ logger = logging.getLogger()
 
 # TODO: move to numpy ...
 # print(sys.getrecursionlimit())
-sys.setrecursionlimit(6000)
+sys.setrecursionlimit(24000)
 
 
 class SpriteChunk(Chunk):
@@ -111,9 +111,7 @@ class SpriteChunk(Chunk):
                     logger.warning(msg)
 
     def _tile_center(self, itr_x: int, itr_y: int) -> CenterMetadata:
-        return CenterMetadata(
-            x=CenterDim(offset=self.offset_x, itr=itr_x), y=CenterDim(offset=self.offset_y, itr=itr_y)
-        )
+        return CenterMetadata(x=CenterDim(offset=self.offset_x, itr=itr_x), y=CenterDim(offset=self.offset_y, itr=itr_y))
 
     def _hover_over_tile(self, id: str) -> None:
         self.tiles[id].hover()
@@ -138,12 +136,7 @@ class SpriteChunk(Chunk):
         chunk_max_y = (chunk_y * tile_height) + self.offset_y
 
         # See if the mouse cursor is above the chunk:
-        if (
-            (mouse_x >= self.offset_x)
-            and (mouse_y >= self.offset_y)
-            and (mouse_x <= chunk_max_x)
-            and (mouse_y <= chunk_max_y)
-        ):
+        if (mouse_x >= self.offset_x) and (mouse_y >= self.offset_y) and (mouse_x <= chunk_max_x) and (mouse_y <= chunk_max_y):
             # see if the cursor is above a tile:
             for tile_id, tile in self.tiles.items():
                 # print(f"reviewing tile id: {tile_id}")
@@ -192,3 +185,11 @@ class SpriteChunk(Chunk):
             if tile_id:
                 self.hovered_tile_id = tile_id
                 self._hover_over_tile(id=self.hovered_tile_id)
+
+    async def reload_tiles(self, client: StateClient, world_id: str, chunk_id: str) -> None:
+        chunk: Chunk = await client.chunk_get(world_id=world_id, chunk_id=chunk_id, full=True)
+        self.load_tiles(tiles=chunk.contents)
+        if self.selected_tile_id:
+            self._hover_over_tile(id=self.selected_tile_id)
+        if self.hovered_tile_id:
+            self._hover_over_tile(id=self.hovered_tile_id)
