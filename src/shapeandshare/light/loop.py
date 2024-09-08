@@ -118,7 +118,7 @@ async def loop(display_surface: Surface | SurfaceType):
                     tile: Tile = Tile.model_validate(tile_sprite.model_dump(exclude={"image", "rect", "hovered"}))
                     # print(tile.model_dump_json(indent=4))
                     center: tuple[int, int] = ((TILE_X * DIM_X), 1)
-                    myfont: Font = pygame.font.SysFont("verdana", 18)
+                    myfont: Font = pygame.font.SysFont("verdana", 12)
                     label = LabelDTO(text=tile.model_dump_json(indent=4), pos=center, font=myfont, color=pygame.Color("black"))
                     # print(label.text)
                     selected_tile_label = label
