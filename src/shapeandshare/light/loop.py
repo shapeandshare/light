@@ -1,13 +1,11 @@
 import sys
-import time
 
 import pygame
 from pydantic import BaseModel
-from pygame import QUIT, Rect, Surface, SurfaceType
+from pygame import QUIT, Surface, SurfaceType
 from pygame.font import Font
-from pygame.rect import RectType
 
-from shapeandshare.darkness import Chunk, Client, CommandOptions, Tile, TileType
+from shapeandshare.darkness import Chunk, CommandOptions, StateClient, Tile, TileType, World
 
 from .const import BLACK, DIM_X, DIM_Y, FPS, TILE_X, TILE_Y, WHITE, FramePerSec
 from .contracts.dtos.center_metadata import CenterMetadata
@@ -33,9 +31,7 @@ def blit_text(surface: Surface | SurfaceType, label: LabelDTO) -> None:
     font = label.font
     color = label.color
 
-    words: list[list[str]] = [
-        word.split(" ") for word in text.splitlines()
-    ]  # 2D array where each row is a list of words.
+    words: list[list[str]] = [word.split(" ") for word in text.splitlines()]  # 2D array where each row is a list of words.
     space = font.size(" ")[0]  # The width of a space.
     max_width, max_height = surface.get_size()
     x, y = pos
@@ -52,35 +48,47 @@ def blit_text(surface: Surface | SurfaceType, label: LabelDTO) -> None:
         y += word_height  # Start on new row.
 
 
-async def load_sprite_chunk(
-    client: Client, world_id: str, chunk_id: str, sprite_chunk: SpriteChunk | None
-) -> SpriteChunk:
+async def load_sprite_chunk(client: StateClient, world_id: str, chunk_id: str, sprite_chunk: SpriteChunk | None) -> SpriteChunk:
     # print("CHUNKLOADEVENT")
     if sprite_chunk:
         await sprite_chunk.reload_tiles(client=client, world_id=world_id, chunk_id=chunk_id)
     else:
         chunk: Chunk = await client.chunk_get(world_id=world_id, chunk_id=chunk_id, full=True)
-        sprite_chunk: SpriteChunk = SpriteChunk.model_validate(
-            {**chunk.model_dump(exclude={"contents"}), "offset": (0, 0)}
-        )
+        sprite_chunk: SpriteChunk = SpriteChunk.model_validate({**chunk.model_dump(exclude={"contents"}), "offset": (0, 0)})
         sprite_chunk.load_tiles(tiles=chunk.contents)
     return sprite_chunk
 
 
 async def loop(display_surface: Surface | SurfaceType):
-    options: CommandOptions = CommandOptions(sleep_time=5, retry_count=3, tld="127.0.0.1:8000", timeout=60)
-    client: Client = Client(options=options)
+    options: CommandOptions = CommandOptions(sleep_time=5, retry_count=30, tld="localhost:8000", timeout=60)
+    client: StateClient = StateClient(options=options)
 
-    # create a new world
-    world_id: str = await client.world_create(name="darkness")
+    # see if there is a world already
+    worlds: list[World] = await client.worlds_get()
+    chunk_ids: list[str] = []
+    if len(worlds) > 0:
+        # connect to the first...
+        world_id: str = worlds[0].id
+        print(f"Connecting to existing world {world_id}")
+        chunk_ids = list(worlds[0].ids)
+    else:
+        # create a new world
+        world_id: str = await client.world_create(name="darkness")
+        print(f"Created and connecting to new world {world_id}")
 
-    # create a new chunk
-    chunk_id: str = await client.chunk_create(
-        world_id=world_id, name="roshar", dimensions=(DIM_X, DIM_Y), biome=TileType.GRASS
-    )
-    sprite_chunk: SpriteChunk = await load_sprite_chunk(
-        client=client, world_id=world_id, chunk_id=chunk_id, sprite_chunk=None
-    )
+    # Determine if we can connect to a pre-existing chunk
+    if len(chunk_ids) > 0:
+        # connect to the first chunk
+        chunk_id: str = chunk_ids[0]
+        print(f"Connecting to existing chunk {chunk_id}")
+    else:
+        # create a new chunk
+        print(f"Created and connecting to new chunk..")
+        chunk_id: str = await client.chunk_create(world_id=world_id, name="roshar", dimensions=(DIM_X, DIM_Y), biome=TileType.DIRT)
+        print(f"Created chunk id: {chunk_id}, moving on...")
+
+    # Load visuals
+    sprite_chunk: SpriteChunk = await load_sprite_chunk(client=client, world_id=world_id, chunk_id=chunk_id, sprite_chunk=None)
     selected_tile_label: LabelDTO | None = None
 
     CHUNKLOADEVENT = pygame.USEREVENT + 1
@@ -110,10 +118,8 @@ async def loop(display_surface: Surface | SurfaceType):
                     tile: Tile = Tile.model_validate(tile_sprite.model_dump(exclude={"image", "rect", "hovered"}))
                     # print(tile.model_dump_json(indent=4))
                     center: tuple[int, int] = ((TILE_X * DIM_X), 1)
-                    myfont: Font = pygame.font.SysFont("verdana", 24)
-                    label = LabelDTO(
-                        text=tile.model_dump_json(indent=4), pos=center, font=myfont, color=pygame.Color("black")
-                    )
+                    myfont: Font = pygame.font.SysFont("verdana", 12)
+                    label = LabelDTO(text=tile.model_dump_json(indent=4), pos=center, font=myfont, color=pygame.Color("black"))
                     # print(label.text)
                     selected_tile_label = label
                 else:
@@ -121,9 +127,7 @@ async def loop(display_surface: Surface | SurfaceType):
                     # print("unselecting tile label")
 
             if event.type == CHUNKLOADEVENT:
-                sprite_chunk = await load_sprite_chunk(
-                    client=client, world_id=world_id, chunk_id=chunk_id, sprite_chunk=sprite_chunk
-                )
+                sprite_chunk = await load_sprite_chunk(client=client, world_id=world_id, chunk_id=chunk_id, sprite_chunk=sprite_chunk)
 
         # Apply game logic updates
         # Redraw the surface

@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [tool.isort]
 py_version = "all"
-line_length = 120
+line_length = 180
 profile = "black"
 src_paths = ["src","test"]
 known_first_party = "shapeandshare"
 
 
 [tool.black]
-line-length = 120
+line-length = 180
 target-version = ["py312"]
 
 
@@ -27,7 +27,7 @@ where = ["src"]  # list of folders that contain the packages (["."] by default)
 
 [project]
 name = "shapeandshare.light"
-version = "0.5.2"
+version = "0.5.3"
 authors = [
   { name="Joshua C. Burt", email="joshburt@shapeandshare.com" },
 ]

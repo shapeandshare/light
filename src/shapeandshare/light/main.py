@@ -15,6 +15,8 @@ pygame.init()
 @click.option("--sleep-time", type=click.FLOAT, default=1.0, help="api call sleep time (seconds)")
 @click.option("--timeout", type=click.FLOAT, default=5.0, help="api call timeout (seconds)")
 @click.option("--retries", type=click.INT, default=5, help="api call retries (integer)")
+# @click.option("--world-id", type=click.STRING)
+# @click.option("--island-id", type=click.STRING)
 def main(hostname: str, port: int, sleep_time: float, timeout: float, retries: int):
     # Setup server runtime environment variables
     os.environ["DARKNESS_TLD"] = f"{hostname}:{port}"
@@ -29,5 +31,4 @@ def main(hostname: str, port: int, sleep_time: float, timeout: float, retries: i
 
 
 if __name__ == "__main__":
-
     main()
