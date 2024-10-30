@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from pygame import QUIT, Surface, SurfaceType
 from pygame.font import Font
 
-from shapeandshare.darkness import Chunk, CommandOptions, StateClient, Tile, TileType, World
+from shapeandshare.darkness import Chunk, CommandOptions, StateClient, Tile, TileType, World, demand_env_var
 
 from .const import BLACK, DIM_X, DIM_Y, FPS, TILE_X, TILE_Y, WHITE, FramePerSec
 from .contracts.dtos.center_metadata import CenterMetadata
@@ -60,7 +60,8 @@ async def load_sprite_chunk(client: StateClient, world_id: str, chunk_id: str, s
 
 
 async def loop(display_surface: Surface | SurfaceType):
-    options: CommandOptions = CommandOptions(sleep_time=5, retry_count=30, tld="localhost:8000", timeout=60)
+    # options: CommandOptions = CommandOptions(sleep_time=5, retry_count=30, tld="localhost:8000", timeout=60)
+    options: CommandOptions = CommandOptions(sleep_time=5, retry_count=30, tld=demand_env_var(name="DARKNESS_TLD"), timeout=60) # os.environ["DARKNESS_TLD"]
     client: StateClient = StateClient(options=options)
 
     # see if there is a world already
@@ -92,7 +93,7 @@ async def loop(display_surface: Surface | SurfaceType):
     selected_tile_label: LabelDTO | None = None
 
     CHUNKLOADEVENT = pygame.USEREVENT + 1
-    interval: int = 5000
+    interval: int = 15000
     pygame.time.set_timer(CHUNKLOADEVENT, interval)
 
     while True:
